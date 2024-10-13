@@ -16,7 +16,7 @@ FROM node:lts-alpine AS node
 
 WORKDIR /app
 
-COPY package*.json vite.config.js tailwind.config.js postcss.config.js ./
+COPY package*.json vite.config.js ./
 COPY resources resources
 COPY public public
 
