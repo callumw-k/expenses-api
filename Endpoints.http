@@ -1,6 +1,6 @@
 GET http://localhost:80/api/user
 Accept: application/json
-Authorization: Bearer 8|wftWlSUN2Dg1x0Qe8UcUveLF2ZxgQqvHEo1wvmG015907b75
+Authorization: Bearer 13|sW42qSTvLB0hciFjpc9ckfFpN4sA8OZlnHaqAN3P3d85a007
 
 ###
 
@@ -20,6 +20,7 @@ Accept: application/json
 
 POST http://localhost:80/api/login
 Content-Type: application/json
+Accept: application/json
 
 {
     "name": "Callum",
@@ -29,3 +30,12 @@ Content-Type: application/json
 
 ###
 
+POST http://localhost:80/api/expenses
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer 13|sW42qSTvLB0hciFjpc9ckfFpN4sA8OZlnHaqAN3P3d85a007
+
+{
+    "name": "This is a test expense",
+    "amount": 45
+}
