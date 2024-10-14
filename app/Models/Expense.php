@@ -16,6 +16,8 @@ class Expense extends Model
     protected $fillable = [
         'name',
         'amount',
+        'file_path',
+        'user_id'
     ];
 
     public function user(): BelongsTo
