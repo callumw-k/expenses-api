@@ -33,17 +33,16 @@ class ImageParsingService
 
             // Set the DPI and format
             $image->setImageResolution(300, 300);
-            $image->setImageFormat('png');
+            $image->setImageFormat('jpeg');
 
             // Preprocess image
-            $image->setImageType(Imagick::IMGTYPE_GRAYSCALE);
-            $image->thresholdImage(0.5 * Imagick::getQuantumRange()['quantumRangeLong']);
             $image->despeckleImage();
 
             // Get image data
             $data = $image->getImageBlob();
             $size = $image->getImageLength();
 
+//            Storage::disk('local')->put('images/test.png', $data);
             // Run OCR
             $ocr = new TesseractOCR();
             $ocr->imageData($data, $size);
