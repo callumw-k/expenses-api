@@ -41,7 +41,7 @@ class AttachImageToExpenseJob implements ShouldQueue
 
         $receipt = ImageParsingService::ReceiptFromImage($image_path);
 
-        if (!$receipt) return;
+        if ($receipt == null) return;
 
         $expense->total_amount = $receipt->getTotalAmount();
         $expense->tax_amount = $receipt->getTaxAmount();

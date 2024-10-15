@@ -17,6 +17,9 @@ class ImageParsingService
     {
         $storage_path = Storage::path($imagePath);
         $text = self::HandleOcr($storage_path);
+        if (strlen($text) === 0) {
+            return null;
+        }
         return self::parseReceiptStringWithClaude($text);
     }
 
