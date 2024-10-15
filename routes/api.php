@@ -17,6 +17,7 @@ Route::post('register', [AuthController::class, 'register']);
 
 Route::prefix('expenses')->group(function () {
     Route::post('/', [ExpenseController::class, 'index'])->middleware('auth:sanctum');
+    Route::get('/{id}', [ExpenseController::class, ''])->middleware('auth:sanctum');
     Route::post('/image', [ExpenseController::class, 'createExpenseFromImage'])->middleware('auth:sanctum');
     Route::post('/image/{id}', [ExpenseController::class, 'attachImageToId'])->middleware('auth:sanctum');
 });

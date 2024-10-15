@@ -18,10 +18,11 @@ class ExpenseController extends Controller
             'amount' => 'required|numeric',
         ]);
 
+        $total_amount = round($request->amount, 2) * 100;
 
         $user = $request->user();
 
-        $expense = $user->expenses()->create(['name' => $request->name, 'amount' => $request->amount, 'user_id' => $user->id]);
+        $expense = $user->expenses()->create(['name' => $request->name, 'total_amount' => $total_amount, 'user_id' => $user->id]);
 
         return response()->json($expense);
     }
@@ -49,7 +50,7 @@ class ExpenseController extends Controller
         $expense->save();
         AttachImageToExpenseJob::dispatch($expense->id);
 
-        return response()->json(['status' => 'saved']);
+        return response()->json(['status' => 'image_saved']);
     }
 
     public function createExpenseFromImage(Request $request)
@@ -69,8 +70,14 @@ class ExpenseController extends Controller
 
         CreateExpenseFromImageJob::dispatch($image_path, $user, $request->description);
 
-        return response()->json(['status' => 'saved']);
+        return response()->json(['status' => 'image_saved']);
 
+    }
+
+    public function getExpenseById(Request $request, string $id)
+    {
+        $expense = Expense::findOrFail($id);
+        return response()->json($expense);
     }
 
 }
