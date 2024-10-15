@@ -18,7 +18,7 @@ class Expense extends Model
         'merchant_name',
         'file_path',
         'tax_amount',
-        'name'
+        'description'
 
     ];
 

@@ -14,7 +14,7 @@ class ExpenseController extends Controller
     public function index(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'description' => 'required',
             'amount' => 'required|numeric',
         ]);
 
@@ -22,7 +22,7 @@ class ExpenseController extends Controller
 
         $user = $request->user();
 
-        $expense = $user->expenses()->create(['name' => $request->name, 'total_amount' => $total_amount, 'user_id' => $user->id]);
+        $expense = $user->expenses()->create(['description' => $request->description, 'total_amount' => $total_amount, 'user_id' => $user->id]);
 
         return response()->json($expense);
     }
