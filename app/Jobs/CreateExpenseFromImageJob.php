@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\User;
+use App\Models\Expense;
 use App\Services\ImageParsingService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -12,18 +12,14 @@ class CreateExpenseFromImageJob implements ShouldQueue
 {
     use Queueable, Dispatchable;
 
-    protected string $imagePath;
-    protected User $user;
-    protected string $description;
+    protected string $expenseId;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(string $imagePath, User $user, string|null $description)
+    public function __construct(string $expenseId)
     {
-        $this->imagePath = $imagePath;
-        $this->user = $user;
-        $this->description = $description ?? '';
+        $this->expenseId = $expenseId;
     }
 
     /**
@@ -31,13 +27,13 @@ class CreateExpenseFromImageJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $receipt = ImageParsingService::ReceiptFromImage($this->imagePath);
-        $this->user->expenses()->create([
-            'file_path' => $this->imagePath,
-            'merchant_name' => $receipt->merchant_name,
-            'total_amount' => $receipt->getTotalAmount(),
-            'tax_amount' => $receipt->getTaxAmount(),
-            'name' => $this->description ?? '',
-        ]);
+        $expense = Expense::findOrFail($this->expenseId);
+
+        $receipt = ImageParsingService::ReceiptFromImage($expense->image_path);
+
+        $expense->total_amount = $receipt->getTotalAmount();
+        $expense->tax_amount = $receipt->getTaxAmount();
+        $expense->merchant_name = $receipt->getMerchantName();
+        $expense->save();
     }
 }

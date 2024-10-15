@@ -12,11 +12,14 @@ Route::get('status', function (Request $request) {
 
 Route::middleware([SetApiAcceptHeaders::class])->group(function () {
 
-    Route::get('user', [UserController::class, 'index'])->middleware('auth:sanctum');
 
     Route::post('login', [AuthController::class, 'login']);
 
     Route::post('register', [AuthController::class, 'register']);
+
+    Route::prefix('users')->middleware('auth:sanctum')->group(function () {
+        Route::get('/', [UserController::class, 'index']);
+    });
 
     Route::prefix('expenses')->middleware('auth:sanctum')->group(function () {
         Route::post('/', [ExpenseController::class, 'index']);

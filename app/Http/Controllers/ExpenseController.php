@@ -7,6 +7,7 @@ use App\Jobs\AttachImageToExpenseJob;
 use App\Jobs\CreateExpenseFromImageJob;
 use App\Models\Expense;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ExpenseController extends Controller
@@ -42,17 +43,18 @@ class ExpenseController extends Controller
         }
 
         if (!$request->hasFile('image')) {
-            return response()->json(['status' => 'not_saved']);
+            throw new BadRequestException("Failed to process image");
         }
 
         $path = $request->file('image')->store('images', 'local');
 
-        $expense->file_path = $path;
+        $expense->image_path = $path;
 
         $expense->save();
+
         AttachImageToExpenseJob::dispatch($expense->id);
 
-        return response()->json(['status' => 'image_saved']);
+        return response()->json($expense);
     }
 
     public function createExpenseFromImage(Request $request)
@@ -65,18 +67,20 @@ class ExpenseController extends Controller
         ]);
 
         if (!$request->hasFile('image')) {
-            return response()->json(['status' => 'not_saved']);
+            throw new BadRequestException("Failed to process image");
         }
 
         $image_path = $request->file('image')->store('images', 'local');
 
-        CreateExpenseFromImageJob::dispatch($image_path, $user, $request->description);
+        $expense = $user->expenses()->create(['description' => $request->description, 'image_path' => $image_path]);
 
-        return response()->json(['status' => 'image_saved']);
+        CreateExpenseFromImageJob::dispatch($expense->id);
+
+        return response()->json($expense);
 
     }
 
-    public function getExpenseById(Request $request, string $id)
+    public function getExpenseById($_, string $id)
     {
         $expense = Expense::findOrFail($id);
         return response()->json($expense);

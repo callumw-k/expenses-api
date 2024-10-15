@@ -16,7 +16,7 @@ class Expense extends Model
     protected $fillable = [
         'total_amount',
         'merchant_name',
-        'file_path',
+        'image_path',
         'tax_amount',
         'description'
 

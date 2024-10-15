@@ -32,16 +32,17 @@ class AttachImageToExpenseJob implements ShouldQueue
         Log::debug("Processing OCR");
         $expense = Expense::find($this->expenseId);
 
-        if ($expense === null || $expense->file_path === null) {
+        if (!$expense || $expense->image_path === null) {
             return;
         }
 
-        $image_path = $expense->file_path;
+        $image_path = $expense->image_path;
 
 
         $receipt = ImageParsingService::ReceiptFromImage($image_path);
 
         if (!$receipt) return;
+
         $expense->total_amount = $receipt->getTotalAmount();
         $expense->tax_amount = $receipt->getTaxAmount();
         $expense->merchant_name = $receipt->getMerchantName();
