@@ -20,6 +20,7 @@ class ImageParsingService
         if (strlen($text) === 0) {
             return null;
         }
+        Log::info("Text from OCR received: " . $text);
         return self::parseReceiptStringWithClaude($text);
     }
 
