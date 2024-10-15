@@ -7,6 +7,14 @@ FROM serversideup/php:8.3-unit AS base
 USER root
 RUN install-php-extensions memcached
 
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    tesseract-ocr-osd && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 
 
 ############################################

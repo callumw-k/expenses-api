@@ -11,6 +11,16 @@ services:
       - "storage_sessions:/var/www/html/storage/framework/sessions"
       - "storage_logs:/var/www/html/storage/logs"
 
+
+  queue:
+    build:
+      context: .
+    command: [ "php", "/var/www/html/artisan", "queue:work", "--tries=3" ]
+    healthcheck:
+      test: [ "CMD", "healthcheck-queue" ]
+      start_period: 10s
+
+
 volumes:
   certificates:
   storage_private:

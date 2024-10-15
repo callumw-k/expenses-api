@@ -14,10 +14,12 @@ class Expense extends Model
     use HasFactory, HasUuids;
 
     protected $fillable = [
-        'name',
-        'amount',
+        'total_amount',
+        'merchant_name',
         'file_path',
-        'user_id'
+        'tax_amount',
+        'name'
+
     ];
 
     public function user(): BelongsTo

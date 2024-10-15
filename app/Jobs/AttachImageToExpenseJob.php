@@ -3,14 +3,13 @@
 namespace App\Jobs;
 
 use App\Models\Expense;
+use App\Services\ImageParsingService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
-use thiagoalessio\TesseractOCR\TesseractOCR;
-use thiagoalessio\TesseractOCR\TesseractOcrException;
 
-class ProcessOcr implements ShouldQueue
+class AttachImageToExpenseJob implements ShouldQueue
 {
     use Queueable, Dispatchable;
 
@@ -30,17 +29,27 @@ class ProcessOcr implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::info("Processing OCR");
+        Log::debug("Processing OCR");
         $expense = Expense::find($this->expenseId);
+
         if ($expense === null || $expense->file_path === null) {
             return;
         }
-        $image = $expense->file_path;
-        try {
-            $text = (new TesseractOCR($image))->run();
-            Log::info($text);
-        } catch (TesseractOcrException $e) {
-            Log::error($e->getMessage());
-        }
+
+        $image_path = $expense->file_path;
+
+
+        $receipt = ImageParsingService::ReceiptFromImage($image_path);
+
+        if (!$receipt) return;
+        $expense->total_amount = $receipt->getTotalAmount();
+        $expense->tax_amount = $receipt->getTaxAmount();
+        $expense->merchant_name = $receipt->getMerchantName();
+
+        $expense->save();
+
     }
+
 }
+
+

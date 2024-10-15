@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 
-use App\Jobs\ProcessOcr;
+use App\Jobs\AttachImageToExpenseJob;
+use App\Jobs\CreateExpenseFromImageJob;
 use App\Models\Expense;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -25,7 +26,7 @@ class ExpenseController extends Controller
         return response()->json($expense);
     }
 
-    public function uploadImage(Request $request, string $id)
+    public function attachImageToId(Request $request, string $id)
     {
         $user = $request->user();
         $expense = Expense::findOrFail($id);
@@ -46,8 +47,30 @@ class ExpenseController extends Controller
         $path = $request->file('image')->store('images', 'local');
         $expense->file_path = $path;
         $expense->save();
-        ProcessOcr::dispatch($expense->id);
+        AttachImageToExpenseJob::dispatch($expense->id);
 
         return response()->json(['status' => 'saved']);
     }
+
+    public function createExpenseFromImage(Request $request)
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust file types and max size as needed
+            'description' => 'nullable|string',
+        ]);
+
+        if (!$request->hasFile('image')) {
+            return response()->json(['status' => 'not_saved']);
+        }
+
+        $image_path = $request->file('image')->store('images', 'local');
+
+        CreateExpenseFromImageJob::dispatch($image_path, $user, $request->description);
+
+        return response()->json(['status' => 'saved']);
+
+    }
+
 }
