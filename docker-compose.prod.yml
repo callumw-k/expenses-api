@@ -19,6 +19,11 @@ services:
     healthcheck:
       test: [ "CMD", "healthcheck-queue" ]
       start_period: 10s
+    volumes:
+      - "storage_private:/var/www/html/storage/app/private/"
+      - "storage_public:/var/www/html/storage/app/public/"
+      - "storage_sessions:/var/www/html/storage/framework/sessions"
+      - "storage_logs:/var/www/html/storage/logs"
 
 
 volumes:
