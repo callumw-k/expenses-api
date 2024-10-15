@@ -3,12 +3,13 @@
 namespace App\Services;
 
 use App\DTOs\ReceiptDataDto;
+use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Imagick;
 use Storage;
 use thiagoalessio\TesseractOCR\TesseractOCR;
-use thiagoalessio\TesseractOCR\TesseractOcrException;
 
 class ImageParsingService
 {
@@ -26,9 +27,33 @@ class ImageParsingService
 
     static function HandleOcr(string $path): string
     {
+
         try {
-            return (new TesseractOCR($path))->run();
-        } catch (TesseractOcrException $e) {
+            $image = new Imagick($path);
+
+            // Set the DPI and format
+            $image->setImageResolution(300, 300);
+            $image->setImageFormat('png');
+
+            // Preprocess image
+            $image->setImageType(Imagick::IMGTYPE_GRAYSCALE);
+            $image->thresholdImage(0.5 * Imagick::getQuantumRange()['quantumRangeLong']);
+            $image->despeckleImage();
+
+            // Get image data
+            $data = $image->getImageBlob();
+            $size = $image->getImageLength();
+
+            // Run OCR
+            $ocr = new TesseractOCR();
+            $ocr->imageData($data, $size);
+            $text = $ocr->run();
+
+            // Cleanup
+            $image->clear();
+
+            return $text;
+        } catch (Exception $e) {
             Log::error($e->getMessage());
             return '';
         }
