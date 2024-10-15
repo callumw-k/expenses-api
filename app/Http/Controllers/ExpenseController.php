@@ -46,7 +46,9 @@ class ExpenseController extends Controller
         }
 
         $path = $request->file('image')->store('images', 'local');
+
         $expense->file_path = $path;
+
         $expense->save();
         AttachImageToExpenseJob::dispatch($expense->id);
 
