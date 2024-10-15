@@ -80,7 +80,7 @@ class ExpenseController extends Controller
 
     }
 
-    public function getExpenseById($_, string $id)
+    public function getExpenseById(Request $request, string $id)
     {
         $expense = Expense::findOrFail($id);
         return response()->json($expense);
