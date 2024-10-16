@@ -25,7 +25,7 @@ Route::middleware([SetApiAcceptHeaders::class])->group(function () {
         Route::post('/', [ExpenseController::class, 'index']);
         Route::get('/{id}', [ExpenseController::class, 'getExpenseById']);
         Route::post('/image', [ExpenseController::class, 'createExpenseFromImage']);
-        Route::post('/image/{id}', [ExpenseController::class, 'attachImageToId']);
+        Route::post('/image/{id}', [ExpenseController::class, 'attachImageToExpense']);
     });
 });
 

@@ -9,7 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 
-class AttachImageToExpenseJob implements ShouldQueue
+class ImageProcessingJob implements ShouldQueue
 {
     use Queueable, Dispatchable;
 
@@ -30,16 +30,14 @@ class AttachImageToExpenseJob implements ShouldQueue
     public function handle(): void
     {
         Log::debug("Processing OCR");
-        $expense = Expense::find($this->expenseId);
+        $expense = Expense::findOrFail($this->expenseId);
 
-        if (!$expense || $expense->image_path === null) {
+        if ($expense->image_path === null) {
             return;
         }
 
-        $image_path = $expense->image_path;
 
-
-        $receipt = ImageParsingService::ReceiptFromImage($image_path);
+        $receipt = ImageParsingService::ReceiptFromImage($expense->image_path);
 
         if ($receipt == null) return;
 

@@ -21,34 +21,30 @@ class ImageParsingService
         if (strlen($text) === 0) {
             return null;
         }
+
         Log::info("Text from OCR received: " . $text);
+
         return self::parseReceiptStringWithClaude($text);
     }
 
     static function HandleOcr(string $path): string
     {
-
         try {
             $image = new Imagick($path);
 
-            // Set the DPI and format
             $image->setImageResolution(300, 300);
             $image->setImageFormat('jpeg');
 
-            // Preprocess image
             $image->despeckleImage();
 
-            // Get image data
             $data = $image->getImageBlob();
             $size = $image->getImageLength();
 
-//            Storage::disk('local')->put('images/test.png', $data);
-            // Run OCR
+            Storage::disk('local')->put('images/test.jpeg', $data);
             $ocr = new TesseractOCR();
             $ocr->imageData($data, $size);
             $text = $ocr->run();
 
-            // Cleanup
             $image->clear();
 
             return $text;
@@ -80,7 +76,9 @@ class ImageParsingService
             ]);
 
             $data = $response->json();
+
             $content = $data['content'][0]['text'] ?? null;
+
             if (!$content) {
                 Log::debug('Content not found in the response');
                 return null;
@@ -96,9 +94,11 @@ class ImageParsingService
             Log::debug('Parsed content: ' . print_r($parsedContent, true));
 
             return $parsedContent;
+
         } catch (ConnectionException $e) {
             Log::error($e->getMessage());
             return null;
         }
+
     }
 }
